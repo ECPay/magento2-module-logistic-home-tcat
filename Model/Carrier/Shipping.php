@@ -57,6 +57,7 @@ class Shipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier implement
 
     /**
      * get allowed methods
+     *
      * @return array
      */
     public function getAllowedMethods()
@@ -77,7 +78,7 @@ class Shipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier implement
     }
 
     /**
-     * @param RateRequest $request
+     * @param  RateRequest $request
      * @return bool|Result
      * 控制物流是否要顯示在列表
      * 訂單金額等相關門檻在此判斷
@@ -89,16 +90,24 @@ class Shipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier implement
         }
 
         // 判斷綠界物流是否啟用
-        $ecpayEnableLogistic = $this->_mainService->getMainConfig('ecpay_enabled_logistic') ;
-        $this->_loggerInterface->debug('LogisticHomeTcat collectRates ecpayEnableLogistic:'. print_r($ecpayEnableLogistic,true));
-        if($ecpayEnableLogistic != 1){
+        $ecpayEnableLogistic = $this->_mainService->getMainConfig('ecpay_enabled_logistic');
+        $this->_loggerInterface->debug('LogisticHomeTcat collectRates ecpayEnableLogistic:'. print_r($ecpayEnableLogistic, true));
+        if($ecpayEnableLogistic != 1) {
             return false ;
         }
 
-        /** @var \Magento\Shipping\Model\Rate\Result $result */
+        /**
+* 
+         *
+ * @var \Magento\Shipping\Model\Rate\Result $result 
+*/
         $result = $this->_rateResultFactory->create();
 
-        /** @var \Magento\Quote\Model\Quote\Address\RateResult\Method $method */
+        /**
+* 
+         *
+ * @var \Magento\Quote\Model\Quote\Address\RateResult\Method $method 
+*/
         $method = $this->_rateMethodFactory->create();
 
         $method->setCarrier($this->_code);
@@ -109,48 +118,48 @@ class Shipping extends \Magento\Shipping\Model\Carrier\AbstractCarrier implement
 
         // 物流費
         $amount = $this->getShippingPrice();
-        $this->_loggerInterface->debug('LogisticHomeTcat collectRates amount:'. print_r($amount,true));
+        $this->_loggerInterface->debug('LogisticHomeTcat collectRates amount:'. print_r($amount, true));
 
         // 購物車金額
         $total = $request->getBaseSubtotalInclTax();
-        $this->_loggerInterface->debug('LogisticHomeTcat collectRates total:'. print_r($total,true));
+        $this->_loggerInterface->debug('LogisticHomeTcat collectRates total:'. print_r($total, true));
         
         // 訂單最小金額
-        $minOrderAmount = $this->getConfigData('min_order_amount') ;
-        $this->_loggerInterface->debug('LogisticHomeTcat collectRates min_order_amount:'. print_r($minOrderAmount,true));
+        $minOrderAmount = $this->getConfigData('min_order_amount');
+        $this->_loggerInterface->debug('LogisticHomeTcat collectRates min_order_amount:'. print_r($minOrderAmount, true));
 
         // 訂單最大金額
-        $maxOrderAmount = $this->getConfigData('max_order_amount') ;
-        $this->_loggerInterface->debug('LogisticHomeTcat collectRates max_order_amount:'. print_r($maxOrderAmount,true));
+        $maxOrderAmount = $this->getConfigData('max_order_amount');
+        $this->_loggerInterface->debug('LogisticHomeTcat collectRates max_order_amount:'. print_r($maxOrderAmount, true));
 
         // 免運門檻開關
-        $freeShippingEnable = $this->getConfigData('free_shipping_enable') ;
-        $this->_loggerInterface->debug('LogisticHomeTcat collectRates free_shipping_enable:'. print_r($freeShippingEnable,true));
+        $freeShippingEnable = $this->getConfigData('free_shipping_enable');
+        $this->_loggerInterface->debug('LogisticHomeTcat collectRates free_shipping_enable:'. print_r($freeShippingEnable, true));
 
         // 免運門檻金額
-        $freeShippingSubtotal = $this->getConfigData('free_shipping_subtotal') ;
-        $this->_loggerInterface->debug('LogisticHomeTcat collectRates free_shipping_subtotal:'. print_r($freeShippingSubtotal,true));
+        $freeShippingSubtotal = $this->getConfigData('free_shipping_subtotal');
+        $this->_loggerInterface->debug('LogisticHomeTcat collectRates free_shipping_subtotal:'. print_r($freeShippingSubtotal, true));
 
         // 購物車重量(中華郵政用)
         $shippingWeight = $request->getPackageWeight();
-        $this->_loggerInterface->debug('LogisticHomeTcat collectRates shippingWeight:'. print_r($shippingWeight,true));
+        $this->_loggerInterface->debug('LogisticHomeTcat collectRates shippingWeight:'. print_r($shippingWeight, true));
 
         // 判斷訂單最高金額
-        if($minOrderAmount != 0 && $total > $maxOrderAmount){
+        if($minOrderAmount != 0 && $total > $maxOrderAmount) {
 
             $this->_loggerInterface->debug('LogisticHomeTcat collectRates 超過購物車最高金額門檻');
             return false;
         }
 
         // 判斷訂單最低金額
-        if($minOrderAmount != 0 && $total < $minOrderAmount){
+        if($minOrderAmount != 0 && $total < $minOrderAmount) {
 
             $this->_loggerInterface->debug('LogisticHomeTcat collectRates 低於購物車最低金額門檻');
             return false;
         }
 
         // 判斷免運門檻
-        if($freeShippingEnable == 1 && $total >= $freeShippingSubtotal){
+        if($freeShippingEnable == 1 && $total >= $freeShippingSubtotal) {
 
             $this->_loggerInterface->debug('LogisticHomeTcat collectRates 到達免運門檻');
             $amount = 0 ;
